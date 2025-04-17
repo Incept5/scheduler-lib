@@ -1,0 +1,24 @@
+{
+  "spec": "Update the README to explain how to add the libraries into a project using gradle or maven \nAlso enhance the current instructions on how to use the libraries",
+  "commitMessage": "Update README with comprehensive installation and usage instructions",
+  "stats": {
+    "inputTokens": 59201,
+    "cacheWriteTokens": 7441,
+    "cacheReadTokens": 74410,
+    "outputTokens": 6163,
+    "totalTokens": 0,
+    "cost": 0.202536,
+    "currency": "gbp",
+    "processingMillis": 126031,
+    "git": {
+      "filesChanged": 70,
+      "insertions": 4913,
+      "deletions": 0,
+      "linesChanged": 4913,
+      "testFilesChanged": 27,
+      "testInsertions": 1558,
+      "testDeletions": 0,
+      "testLinesChanged": 1558
+    }
+  }
+}

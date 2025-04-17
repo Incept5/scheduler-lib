@@ -1,0 +1,40 @@
+quarkus:
+  log:
+    # Note: Allow trace logging to be switched on at runtime but don't enable it by default
+    level: INFO
+    min-level: TRACE
+    console:
+      format: "%d{yyyy-MM-dd HH:mm:ss,S} %X{correlationId} %-5p - [%c{3.}] (%t) %s%e%n"
+
+    category:
+      "org.incept5":
+        level: DEBUG
+      "com.github.kagkarlsson.scheduler":
+        level: DEBUG
+
+  datasource:
+    # h2
+    db-kind: postgresql
+
+  flyway:
+    default-schema: example
+    migrate-at-start: true
+    locations: db/migration,velostone/scheduler
+
+task:
+  scheduler:
+
+    schema: example
+
+    polling-interval: PT1S
+
+    tasks:
+      # test retryable task
+      example-retryable-task:
+        on-failure:
+          retry-interval: PT1S
+
+      # test recurring task
+      example-recurring-task:
+        frequency:
+          time-of-day: "00:00:00"
