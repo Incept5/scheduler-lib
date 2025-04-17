@@ -1,4 +1,4 @@
-# Velostone Scheduler Lib
+# Incept5 Scheduler Lib
 
 # Description
 
@@ -108,7 +108,7 @@ task:
 
 ### Manual Database Setup
 
-If you're not using Flyway, you can manually create the required tables. The SQL scripts are located in the `scheduler-db` module under `src/main/resources/velostone/scheduler/R__scheduled_tasks.sql`.
+If you're not using Flyway, you can manually create the required tables. The SQL scripts are located in the `scheduler-db` module under `src/main/resources/incept5/scheduler/R__scheduled_tasks.sql`.
 
 ### Database Requirements
 

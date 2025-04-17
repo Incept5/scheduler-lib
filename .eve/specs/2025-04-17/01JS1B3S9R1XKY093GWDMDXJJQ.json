@@ -1,0 +1,24 @@
+{
+  "spec": "Fix this test:\nExampleComplexPayloadTaskTest > testTaskScheduling() FAILED\n    java.lang.RuntimeException at QuarkusTestExtension.java:611\n        Caused by: java.lang.RuntimeException at null:-1\n            Caused by: java.lang.reflect.UndeclaredThrowableException at ConfigMappingLoader.java:106\n                Caused by: java.lang.NoSuchMethodError at null:-1",
+  "commitMessage": "Fix ExampleComplexPayloadTaskTest by properly implementing TaskSchedulerConfig interface\n\nThe test was failing with a NoSuchMethodError because the TaskSchedulerConfig interface\nwas not properly implementing all the required methods from the SchedulerConfig interface.\nThis caused issues with Quarkus SmallRye Config system when trying to map configuration\nproperties.\n\nThe fix explicitly implements all the required methods in the TaskSchedulerConfig interface\nand adds the @WithDefault annotation for the lenientConfig method to provide a default value.",
+  "stats": {
+    "inputTokens": 75876,
+    "cacheWriteTokens": 0,
+    "cacheReadTokens": 119056,
+    "outputTokens": 2051,
+    "totalTokens": 0,
+    "cost": 0.19379475000000002,
+    "currency": "gbp",
+    "processingMillis": 96297,
+    "git": {
+      "filesChanged": 4,
+      "insertions": 24,
+      "deletions": 4,
+      "linesChanged": 24,
+      "testFilesChanged": 1,
+      "testInsertions": 1,
+      "testDeletions": 1,
+      "testLinesChanged": 1
+    }
+  }
+}

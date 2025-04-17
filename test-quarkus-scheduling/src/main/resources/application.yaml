@@ -19,7 +19,7 @@ quarkus:
   flyway:
     default-schema: example
     migrate-at-start: true
-    locations: db/migration,velostone/scheduler
+    locations: db/migration,incept5/scheduler
 
 task:
   scheduler:
