@@ -5,18 +5,9 @@ quarkus:
       "org.incept5":
         level: DEBUG
 
-  # Configure test security
-  security:
-    users:
-      embedded:
-        enabled: true
-        plain-text: true
-        users:
-          admin: admin
-          user: user
-        roles:
-          admin: platform_admin,scheduler_admin
-          user: user
+  ## Enable our alternative beans for testing
+  arc:
+    selected-alternatives: org.incept5.example.TestApiConfig
 
 # Configure roles allowed for testing
 incept5:

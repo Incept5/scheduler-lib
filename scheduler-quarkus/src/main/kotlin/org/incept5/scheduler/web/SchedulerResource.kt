@@ -41,7 +41,6 @@ open class SchedulerResource(
     @POST
     @Path("/recurring-tasks/{taskName}")
     @Transactional
-    @RolesAllowed("platform_admin", "scheduler_admin")  // Default roles for backward compatibility
     open fun triggerRecurringTask(
         @PathParam("taskName") taskName: String,
         @Context securityContext: SecurityContext
