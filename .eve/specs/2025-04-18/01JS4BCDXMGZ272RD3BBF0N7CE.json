@@ -1,0 +1,24 @@
+{
+  "spec": "now fix the test ExampleRecurringTaskTest so that a security context with the correct role is injected \nor suggest a different way to test the SchedulerResource endpoint",
+  "commitMessage": "Update tests to use Quarkus TestSecurity for role-based access control testing",
+  "stats": {
+    "inputTokens": 316180,
+    "cacheWriteTokens": 7441,
+    "cacheReadTokens": 141379,
+    "outputTokens": 6170,
+    "totalTokens": 0,
+    "cost": 0.7808175,
+    "currency": "gbp",
+    "processingMillis": 136313,
+    "git": {
+      "filesChanged": 4,
+      "insertions": 70,
+      "deletions": 10,
+      "linesChanged": 70,
+      "testFilesChanged": 4,
+      "testInsertions": 70,
+      "testDeletions": 10,
+      "testLinesChanged": 70
+    }
+  }
+}

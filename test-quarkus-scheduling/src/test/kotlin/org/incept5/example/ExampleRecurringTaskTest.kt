@@ -2,6 +2,7 @@ package org.incept5.example
 
 import org.incept5.example.tasks.ExampleRecurringTask
 import io.quarkus.test.junit.QuarkusTest
+import io.quarkus.test.security.TestSecurity
 import io.restassured.RestAssured
 import io.restassured.filter.log.RequestLoggingFilter
 import io.restassured.filter.log.ResponseLoggingFilter
@@ -15,18 +16,16 @@ import java.time.Duration
 class ExampleRecurringTaskTest {
 
     @Test
-    fun `recurring task can be triggered via http POST`() {
-
+    @TestSecurity(user = "admin", roles = ["platform_admin"])
+    fun `recurring task can be triggered via http POST with platform_admin role`() {
         // debug logging for restassured
         RestAssured.filters(RequestLoggingFilter(), ResponseLoggingFilter())
 
         val taskName = "example-recurring-task"
         val count = ExampleRecurringTask.count.get()
 
-        // POST the file to the server
-
+        // POST with admin role (provided by @TestSecurity annotation)
         val response = RestAssured.given()
-            .header("Authorization","Bearer backoffice-admin-token")
             .post("/api/scheduler/recurring-tasks/$taskName")
 
         assertThat(response.statusCode, CoreMatchers.equalTo(200))
@@ -38,20 +37,39 @@ class ExampleRecurringTaskTest {
     }
 
     @Test
-    fun `backoffice admin role is required to trigger the recurring task`() {
+    @TestSecurity(user = "user", roles = ["user"])
+    fun `user without required role cannot trigger the recurring task`() {
+        // debug logging for restassured
+        RestAssured.filters(RequestLoggingFilter(), ResponseLoggingFilter())
 
+        val taskName = "example-recurring-task"
+
+        // POST with user role (provided by @TestSecurity annotation)
+        val response = RestAssured.given()
+            .post("/api/scheduler/recurring-tasks/$taskName")
+
+        // Should get a 403 Forbidden (not 401 Unauthorized since they are authenticated but not authorized)
+        assertThat(response.statusCode, CoreMatchers.equalTo(403))
+    }
+    
+    @Test
+    @TestSecurity(user = "scheduler_admin", roles = ["scheduler_admin"])
+    fun `scheduler_admin role can also trigger the recurring task`() {
         // debug logging for restassured
         RestAssured.filters(RequestLoggingFilter(), ResponseLoggingFilter())
 
         val taskName = "example-recurring-task"
         val count = ExampleRecurringTask.count.get()
 
-        // POST the file to the server
-
+        // POST with scheduler_admin role (provided by @TestSecurity annotation)
         val response = RestAssured.given()
-            .header("Authorization","Bearer user-token")
             .post("/api/scheduler/recurring-tasks/$taskName")
 
-        assertThat(response.statusCode, CoreMatchers.equalTo(401))
+        assertThat(response.statusCode, CoreMatchers.equalTo(200))
+
+        // wait for our subscriber to pick up the target file
+        Awaitility.await().atMost(Duration.ofSeconds(20)).until {
+            ExampleRecurringTask.count.get() > count
+        }
     }
 }

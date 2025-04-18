@@ -12,6 +12,7 @@ dependencies {
     api("jakarta.transaction:jakarta.transaction-api")
     api("jakarta.ws.rs:jakarta.ws.rs-api")
     api(project(":scheduler-core"))
+    api(project(":scheduler-quarkus"))
 
     implementation(enforcedPlatform(libs.quarkus.bom))
     implementation("io.quarkus:quarkus-kotlin")
@@ -23,8 +24,13 @@ dependencies {
     runtimeOnly("io.quarkus:quarkus-jdbc-postgresql")
     runtimeOnly("io.quarkus:quarkus-config-yaml")
     runtimeOnly("io.quarkus:quarkus-flyway")
+    
+    // Security dependencies for testing
+    implementation("io.quarkus:quarkus-security")
+    implementation("io.quarkus:quarkus-elytron-security-properties-file")
 
     testImplementation("io.quarkus:quarkus-junit5")
+    testImplementation("io.quarkus:quarkus-test-security")
     testImplementation("io.rest-assured:rest-assured")
     testImplementation("org.awaitility:awaitility")
     testImplementation("org.hamcrest:hamcrest")
