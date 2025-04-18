@@ -1,0 +1,24 @@
+{
+  "spec": "Suggest a fix for this error when building on circleci:\nCould not find a valid Docker environment. Please check configuration. Attempted configurations were:\n        UnixSocketClientProviderStrategy: failed with exception InvalidConfigurationException (Could not find unix domain socket). Root cause NoSuchFileException (/var/run/docker.sock)\n        DockerDesktopClientProviderStrategy: failed with exception NullPointerException (Cannot invoke \"java.nio.file.Path.toString()\" because the return value of \"org.testcontainers.dockerclient.DockerDesktopClientProviderStrategy.getSocketPath()\" is null)As no valid configuration was found, execution cannot continue.\nSee https://java.testcontainers.org/on_failure.html for more details.\nCommand \"docker info\" exited with error code 1. Rootless container runtime detection might not be reliable or the container service is not running at all.\n\n> Task :test-quarkus-scheduling:test\n\nExampleComplexPayloadTaskTest > testTaskScheduling() FAILED",
+  "commitMessage": "Fix CircleCI build by using machine executor with Docker support",
+  "stats": {
+    "inputTokens": 77141,
+    "cacheWriteTokens": 7502,
+    "cacheReadTokens": 82522,
+    "outputTokens": 1539,
+    "totalTokens": 0,
+    "cost": 0.190881,
+    "currency": "gbp",
+    "processingMillis": 52909,
+    "git": {
+      "filesChanged": 1,
+      "insertions": 4,
+      "deletions": 4,
+      "linesChanged": 4,
+      "testFilesChanged": 0,
+      "testInsertions": 0,
+      "testDeletions": 0,
+      "testLinesChanged": 0
+    }
+  }
+}
