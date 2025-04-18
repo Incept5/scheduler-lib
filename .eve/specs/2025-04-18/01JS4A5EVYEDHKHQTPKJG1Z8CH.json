@@ -1,0 +1,24 @@
+{
+  "spec": "We need to protect the triggerRecurringTask method in SchedulerResource by requiring a role\nThe required role should be set dynamically by the qaurkus application using the scheduler-quarkus library\nWe can acheive this by setting the role to use in the application.yaml file with a property called incept5.scheduler.api.roles-allowed and one or more roles as the value\nfor example: \nincept5 \n    :scheduler\n        :api\n            :roles-allowed\n                - platform_admin",
+  "commitMessage": "Add dynamic role-based security for scheduler API endpoints",
+  "stats": {
+    "inputTokens": 59593,
+    "cacheWriteTokens": 7441,
+    "cacheReadTokens": 81851,
+    "outputTokens": 2848,
+    "totalTokens": 0,
+    "cost": 0.16612425,
+    "currency": "gbp",
+    "processingMillis": 61100,
+    "git": {
+      "filesChanged": 4,
+      "insertions": 57,
+      "deletions": 6,
+      "linesChanged": 57,
+      "testFilesChanged": 1,
+      "testInsertions": 8,
+      "testDeletions": 0,
+      "testLinesChanged": 8
+    }
+  }
+}

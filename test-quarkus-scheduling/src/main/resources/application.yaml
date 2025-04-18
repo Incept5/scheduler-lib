@@ -21,6 +21,14 @@ quarkus:
     migrate-at-start: true
     locations: db/migration,incept5/scheduler
 
+# Configure roles allowed to access scheduler API endpoints
+incept5:
+  scheduler:
+    api:
+      roles-allowed:
+        - platform_admin
+        - scheduler_admin
+
 task:
   scheduler:
 

@@ -233,7 +233,21 @@ Response:
 
 #### Security Considerations
 
-These endpoints should be secured appropriately in production environments. By default, they require authentication.
+These endpoints should be secured appropriately in production environments. By default, they require authentication and the "platform_admin" role.
+
+You can configure which roles are allowed to access these endpoints by setting the following in your `application.yaml`:
+
+```yaml
+incept5:
+  scheduler:
+    api:
+      roles-allowed:
+        - platform_admin
+        - scheduler_admin
+        - other_role
+```
+
+This configuration allows you to customize the security requirements based on your application's role structure.
 
 ### Adhoc Jobbing Tasks
 
