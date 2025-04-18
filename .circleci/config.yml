@@ -9,6 +9,9 @@ jobs:
       - image: cimg/openjdk:21.0
     steps:
       - checkout
+      - run:
+            name: Check Docker socket
+            command: ls -l /var/run/docker.sock
       - gradle/with_cache:
           steps:
             - run:
