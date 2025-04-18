@@ -5,13 +5,22 @@ orbs:
 
 jobs:
   build-and-test:
-    docker:
-      - image: cimg/openjdk:21.0
+    machine:
+      image: ubuntu-2204:current
     steps:
       - checkout
       - run:
-            name: Check Docker socket
-            command: ls -l /var/run/docker.sock
+          name: Install JDK 21
+          command: |
+            sudo apt-get update -y
+            sudo apt-get install -y openjdk-21-jdk
+            java -version
+      - run:
+          name: Ensure Docker is running
+          command: |
+            docker --version
+            docker info
+            docker ps
       - gradle/with_cache:
           steps:
             - run:
@@ -24,10 +33,22 @@ jobs:
           destination: reports
 
   publish-to-jitpack:
-    docker:
-      - image: cimg/openjdk:21.0
+    machine:
+      image: ubuntu-2204:current
     steps:
       - checkout
+      - run:
+          name: Install JDK 21
+          command: |
+            sudo apt-get update -y
+            sudo apt-get install -y openjdk-21-jdk
+            java -version
+      - run:
+          name: Ensure Docker is running
+          command: |
+            docker --version
+            docker info
+            docker ps
       - run:
           name: Set Build Number
           command: |

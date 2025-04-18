@@ -1,0 +1,24 @@
+{
+  "spec": "Update the circleci config.yml to use the machine executor\nAdd steps to install Docker and ensure it is running\nMake sure that we keep using jdk 21. do not downgrade it to jdk 17",
+  "commitMessage": "Update CircleCI config to use machine executor with JDK 21 and Docker",
+  "stats": {
+    "inputTokens": 15800,
+    "cacheWriteTokens": 7502,
+    "cacheReadTokens": 30008,
+    "outputTokens": 896,
+    "totalTokens": 0,
+    "cost": 0.045630000000000004,
+    "currency": "gbp",
+    "processingMillis": 25887,
+    "git": {
+      "filesChanged": 1,
+      "insertions": 27,
+      "deletions": 6,
+      "linesChanged": 27,
+      "testFilesChanged": 0,
+      "testInsertions": 0,
+      "testDeletions": 0,
+      "testLinesChanged": 0
+    }
+  }
+}
