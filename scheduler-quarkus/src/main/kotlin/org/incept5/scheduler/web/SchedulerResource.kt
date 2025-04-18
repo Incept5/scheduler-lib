@@ -11,18 +11,22 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.core.Response
 import jakarta.annotation.PostConstruct
+import jakarta.ws.rs.core.Context
+import jakarta.ws.rs.core.SecurityContext
+import jakarta.ws.rs.ForbiddenException
 
 @Path("/api/scheduler")
 @ApplicationScoped
 @Authenticated
-class SchedulerResource(
+open class SchedulerResource(
     private val scheduler: TaskScheduler,
     private val apiConfig: ApiConfig
 ) {
-    private lateinit var allowedRoles: Array<String>
+    // Make this protected so it can be accessed by subclasses in tests
+    protected lateinit var allowedRoles: Array<String>
     
     @PostConstruct
-    fun init() {
+    open fun init() {
         // Default to "platform_admin" if no roles are configured
         allowedRoles = apiConfig.rolesAllowed()
             .map { it.toTypedArray() }
@@ -37,10 +41,20 @@ class SchedulerResource(
     @POST
     @Path("/recurring-tasks/{taskName}")
     @Transactional
-    @RolesAllowed("#{ schedulerResource.allowedRoles }")
-    fun triggerRecurringTask(
-        @PathParam("taskName") taskName: String
+    @RolesAllowed("platform_admin", "scheduler_admin")  // Default roles for backward compatibility
+    open fun triggerRecurringTask(
+        @PathParam("taskName") taskName: String,
+        @Context securityContext: SecurityContext
     ): Response {
+        // Check if user has any of the configured roles
+        val hasRequiredRole = allowedRoles.any { role -> 
+            securityContext.isUserInRole(role) 
+        }
+        
+        if (!hasRequiredRole) {
+            throw ForbiddenException("User does not have any of the required roles: ${allowedRoles.joinToString()}")
+        }
+        
         return try {
             scheduler.scheduleRecurringTask(taskName)
             Response.ok().build()

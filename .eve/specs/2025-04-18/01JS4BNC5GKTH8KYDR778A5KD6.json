@@ -1,0 +1,24 @@
+{
+  "spec": "the test now fails due to Quarkus failing to start:\nCaused by: jakarta.enterprise.inject.AmbiguousResolutionException: Ambiguous dependencies for type org.incept5.scheduler.ApiConfig and qualifiers [@Default]\n\t- injection target: parameter 'apiConfig' of org.incept5.scheduler.web.SchedulerResource constructor\n\t- declared on CLASS bean [types=[org.incept5.scheduler.web.SchedulerResource, java.lang.Object], qualifiers=[@Default, @Any], target=org.incept5.scheduler.web.SchedulerResource]\n\t- available beans:\n\t\t- PRODUCER METHOD bean [types=[java.lang.Object, org.incept5.scheduler.ApiConfig], qualifiers=[@Default, @Any], target=org.incept5.scheduler.ApiConfig apiConfig(), declaringBean=org.incept5.example.TestSecurityConfig]\n\t\t- SYNTHETIC bean [types=[java.lang.Object, org.incept5.scheduler.ApiConfig], qualifiers=[@Default, @Any], target=n/a]\n\tat io.quarkus.arc.processor.Beans.resolveInjectionPoint(Beans.java:556)\n\tat io.quarkus.arc.processor.BeanInfo.init(BeanInfo.java:689)\n\tat io.quarkus.arc.processor.BeanDeployment.init(BeanDeployment.java:323)",
+  "commitMessage": "Fix role-based security implementation to use programmatic approach",
+  "stats": {
+    "inputTokens": 299042,
+    "cacheWriteTokens": 0,
+    "cacheReadTokens": 81851,
+    "outputTokens": 4721,
+    "totalTokens": 0,
+    "cost": 0.72595575,
+    "currency": "gbp",
+    "processingMillis": 99246,
+    "git": {
+      "filesChanged": 5,
+      "insertions": 81,
+      "deletions": 21,
+      "linesChanged": 81,
+      "testFilesChanged": 4,
+      "testInsertions": 61,
+      "testDeletions": 15,
+      "testLinesChanged": 61
+    }
+  }
+}
