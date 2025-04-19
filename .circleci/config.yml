@@ -98,7 +98,34 @@ jobs:
             echo "All artifacts in Maven repository:"
             find $HOME/.m2/repository/com/github/incept5 -type f -name "*.jar" | sort
             
-            # Verify that both JARs exist locally
+            # Verify that JARs exist locally
+                        if [ ! -f "$HOME/.m2/repository/com/github/incept5/scheduler-db/${VERSION}/scheduler-db-${VERSION}.jar" ]; then
+              echo "scheduler: scheduler-db JAR not found locally at expected path"
+              echo "Expected: $HOME/.m2/repository/com/github/incept5/scheduler-db/${VERSION}/scheduler-db-${VERSION}.jar"
+            
+              # Check if the directory exists
+              if [ -d "$HOME/.m2/repository/com/github/incept5/scheduler-db" ]; then
+                echo "Available versions for scheduler-db:"
+                ls -la "$HOME/.m2/repository/com/github/incept5/scheduler-db/"
+              fi
+            
+              # Try to find it elsewhere
+              echo "Searching for scheduler-db JAR:"
+              find $HOME/.m2/repository -name "scheduler-db-*.jar" | sort
+            
+              # Try one more publish with explicit version
+              echo "Attempting one more publish with explicit version ${VERSION}"
+              ./gradlew :scheduler-db:clean :scheduler-db:build :scheduler-db:publishToMavenLocal -Pversion=${VERSION} --stacktrace
+            
+              # Check again
+              if [ -f "$HOME/.m2/repository/com/github/incept5/scheduler-db/${VERSION}/scheduler-db-${VERSION}.jar" ]; then
+                echo "Successfully published scheduler-db JAR after retry"
+              else
+                echo "Failed to publish scheduler-db JAR after retry"
+                exit 1
+              fi
+            fi
+            
             if [ ! -f "$HOME/.m2/repository/com/github/incept5/scheduler-core/${VERSION}/scheduler-core-${VERSION}.jar" ]; then
               echo "scheduler: scheduler-core JAR not found locally at expected path"
               echo "Expected: $HOME/.m2/repository/com/github/incept5/scheduler-core/${VERSION}/scheduler-core-${VERSION}.jar"
@@ -163,6 +190,7 @@ jobs:
             echo "JitPack build triggered for version ${VERSION}"
             echo "Root project will be available at: https://jitpack.io/#incept5/scheduler-lib/${VERSION}"
             echo "Modules will be available at:"
+            echo "- https://jitpack.io/#incept5/scheduler-lib/scheduler-db/${VERSION}"
             echo "- https://jitpack.io/#incept5/scheduler-lib/scheduler-core/${VERSION}"
             echo "- https://jitpack.io/#incept5/scheduler-lib/scheduler-quarkus/${VERSION}"
             
@@ -176,6 +204,15 @@ jobs:
               echo "Root project successfully published to JitPack!"
             else
               echo "Root project not found on JitPack. Status code: $ROOT_STATUS"
+              echo "Check status at: https://jitpack.io/#incept5/scheduler-lib/${VERSION}"
+            fi
+            
+             # Verify the build status for scheduler-db module
+            CORE_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://jitpack.io/com/github/incept5/scheduler-lib/scheduler-db/${VERSION}/scheduler-core-${VERSION}.jar")
+            if [ "$CORE_STATUS" -eq 200 ]; then
+              echo "scheduler-db artifact successfully published to JitPack!"
+            else
+              echo "scheduler-db artifact not found on JitPack. Status code: $CORE_STATUS"
               echo "Check status at: https://jitpack.io/#incept5/scheduler-lib/${VERSION}"
             fi
             
@@ -212,6 +249,7 @@ jobs:
               echo ""
               echo "2. Add the dependencies"
               echo "   dependencies {"
+              echo "     implementation 'com.github.incept5.scheduler-lib:scheduler-db:${VERSION}'"
               echo "     implementation 'com.github.incept5.scheduler-lib:scheduler-core:${VERSION}'"
               echo "     implementation 'com.github.incept5.scheduler-lib:scheduler-quarkus:${VERSION}'"
               echo "   }"

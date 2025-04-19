@@ -63,7 +63,7 @@ publishing {
 
             // Explicitly set the coordinates
             groupId = publishGroupId
-            artifactId = "scheduler-core"
+            artifactId = "scheduler-db"
             version = project.version.toString()
 
             from(components["java"])

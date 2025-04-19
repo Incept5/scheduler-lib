@@ -159,7 +159,15 @@ publishing {
                 withXml {
                     val dependencies = asNode().appendNode("dependencies")
 
-                    project(":scheduler-core").let { subproject ->
+                    project(":scheduler-db").let { _ ->
+                        val dependency = dependencies.appendNode("dependency")
+                        dependency.appendNode("groupId", "com.github.incept5.scheduler-lib")
+                        dependency.appendNode("artifactId", "scheduler-db")
+                        dependency.appendNode("version", project.version)
+                        dependency.appendNode("scope", "compile")
+                    }
+
+                    project(":scheduler-core").let { _ ->
                         val dependency = dependencies.appendNode("dependency")
                         dependency.appendNode("groupId", "com.github.incept5.scheduler-lib")
                         dependency.appendNode("artifactId", "scheduler-core")
@@ -167,7 +175,7 @@ publishing {
                         dependency.appendNode("scope", "compile")
                     }
 
-                    project(":scheduler-quarkus").let { subproject ->
+                    project(":scheduler-quarkus").let { _ ->
                         val dependency = dependencies.appendNode("dependency")
                         dependency.appendNode("groupId", "com.github.incept5.scheduler-lib")
                         dependency.appendNode("artifactId", "scheduler-quarkus")
@@ -175,7 +183,7 @@ publishing {
                         dependency.appendNode("scope", "compile")
                     }
 
-                    project(":test-quarkus-scheduling").let { subproject ->
+                    project(":test-quarkus-scheduling").let { _ ->
                         val dependency = dependencies.appendNode("dependency")
                         dependency.appendNode("groupId", "com.github.incept5.scheduler-lib")
                         dependency.appendNode("artifactId", "test-quarkus-scheduling")
