@@ -60,7 +60,7 @@ publishing {
 
                 // Important for JitPack to resolve dependencies correctly
                 scm {
-                    connection.set("scm:git:github.com/incept5/authz-lib.git")
+                    connection.set("scm:git:github.com/incept5/scheduler-lib.git")
                     developerConnection.set("scm:git:ssh://github.com/incept5/scheduler-lib.git")
                     url.set("https://github.com/incept5/scheduler-lib/tree/main")
                 }
