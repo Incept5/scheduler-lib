@@ -1,0 +1,24 @@
+{
+  "spec": "chnage the scopes in the build file in scheduler-quarkus to the appropriate level so that there are no unnecessary dependencies pulled in to projects that use the built artefact, such as test-quarkus-scheduling",
+  "commitMessage": "Optimize dependency scopes in scheduler-quarkus build file\n\n- Moved jakarta.transaction:jakarta.transaction-api from api to implementation scope\n- Kept only essential dependencies in api scope that are part of the public API\n- Organized dependencies into logical groups with comments\n- Ensured test dependencies are properly scoped\n\nThis change reduces unnecessary transitive dependencies for projects that use the scheduler-quarkus module.",
+  "stats": {
+    "inputTokens": 60226,
+    "cacheWriteTokens": 7502,
+    "cacheReadTokens": 90024,
+    "outputTokens": 2027,
+    "totalTokens": 0,
+    "cost": 0.15831225,
+    "currency": "gbp",
+    "processingMillis": 61986,
+    "git": {
+      "filesChanged": 2,
+      "insertions": 15,
+      "deletions": 12,
+      "linesChanged": 15,
+      "testFilesChanged": 1,
+      "testInsertions": 0,
+      "testDeletions": 1,
+      "testLinesChanged": 1
+    }
+  }
+}

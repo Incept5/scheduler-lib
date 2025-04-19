@@ -18,7 +18,6 @@ dependencies {
     implementation("io.quarkus:quarkus-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
-    runtimeOnly(project(":scheduler-quarkus"))
     runtimeOnly("io.quarkus:quarkus-arc")
     implementation(libs.quarkus.rest.jackson)
     runtimeOnly("io.quarkus:quarkus-jdbc-postgresql")

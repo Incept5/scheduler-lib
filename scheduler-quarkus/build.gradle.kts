@@ -10,25 +10,29 @@ plugins {
 }
 
 dependencies {
-
-    api(project(":scheduler-db"))
+    // Core dependencies that are part of the public API
     api(project(":scheduler-core"))
-    api("io.quarkus:quarkus-core")
-    api("io.smallrye.config:smallrye-config-core")
+    api(project(":scheduler-db"))
+    
+    // Jakarta APIs needed by consumers
     api("jakarta.enterprise:jakarta.enterprise.cdi-api")
-    api("jakarta.transaction:jakarta.transaction-api")
     api("jakarta.inject:jakarta.inject-api")
     api("jakarta.ws.rs:jakarta.ws.rs-api")
-
+    
+    // Quarkus dependencies needed for the public API
+    api("io.quarkus:quarkus-core")
+    api("io.smallrye.config:smallrye-config-core")
+    
+    // Implementation dependencies - not exposed in the public API
     implementation(platform(libs.quarkus.bom))
-    implementation("io.quarkus:quarkus-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation(libs.kotlin.logging)
-
+    implementation("jakarta.transaction:jakarta.transaction-api")
     implementation(libs.quarkus.rest.jackson)
-
-
-    testRuntimeOnly("io.quarkus:quarkus-junit5")
+    implementation("io.quarkus:quarkus-kotlin")
+    
+    // Test dependencies
+    testImplementation("io.quarkus:quarkus-junit5")
 }
 
 publishing {
