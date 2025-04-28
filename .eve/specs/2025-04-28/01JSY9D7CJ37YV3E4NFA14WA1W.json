@@ -1,0 +1,24 @@
+{
+  "spec": "ensure that when circleci builds the project that the version number is only incremented when the main branch has been updated\nOnly use snapshot versions for branch builds",
+  "commitMessage": "Update CircleCI config to use versioning based on branch type: incremental versions for main branch and SNAPSHOT for other branches",
+  "stats": {
+    "inputTokens": 49733,
+    "cacheWriteTokens": 7502,
+    "cacheReadTokens": 52514,
+    "outputTokens": 2109,
+    "totalTokens": 0,
+    "cost": 0.1356255,
+    "currency": "gbp",
+    "processingMillis": 66596,
+    "git": {
+      "filesChanged": 2,
+      "insertions": 34,
+      "deletions": 26,
+      "linesChanged": 34,
+      "testFilesChanged": 0,
+      "testInsertions": 0,
+      "testDeletions": 0,
+      "testLinesChanged": 0
+    }
+  }
+}

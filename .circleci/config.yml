@@ -50,45 +50,56 @@ jobs:
             docker info
             docker ps
       - run:
-          name: Set Build Number
+          name: Set Version
           command: |
-            # Use the CircleCI build number directly without additional processing
-            echo "export BUILD_NUMBER=${CIRCLE_BUILD_NUM}" >> $BASH_ENV
+            # Check if we're on the main branch
+            if [ "${CIRCLE_BRANCH}" == "main" ]; then
+              # For main branch, use the build number for versioning
+              echo "export VERSION=1.0.${CIRCLE_BUILD_NUM}" >> $BASH_ENV
+              echo "export IS_MAIN_BRANCH=true" >> $BASH_ENV
+            else
+              # For other branches, use SNAPSHOT versioning
+              echo "export VERSION=1.0.0-SNAPSHOT" >> $BASH_ENV
+              echo "export IS_MAIN_BRANCH=false" >> $BASH_ENV
+            fi
             source $BASH_ENV
-            echo "Using build number: ${BUILD_NUMBER}"
+            echo "Using version: ${VERSION}"
       - gradle/with_cache:
           steps:
             - run:
-                name: Build with Build Number
+                name: Build with Version
                 command: |
-                  echo "Using build number: ${BUILD_NUMBER}"
-                  ./gradlew clean build -Pversion=1.0.${BUILD_NUMBER}
+                  echo "Using version: ${VERSION}"
+                  ./gradlew clean build -Pversion=${VERSION}
             - run:
                 name: Publish to Local Maven Repository
                 command: |
-                  echo "Publishing with version: 1.0.${BUILD_NUMBER}"
-                  ./gradlew publishToMavenLocal -Pversion=1.0.${BUILD_NUMBER}
+                  echo "Publishing with version: ${VERSION}"
+                  ./gradlew publishToMavenLocal -Pversion=${VERSION}
       - run:
           name: Create and Push Git Tag
           command: |
-            # Create a git tag with the version number
-            VERSION="1.0.${BUILD_NUMBER}"
-            echo "Creating tag for version: ${VERSION}"
-            git config user.email "ci@incept5.com"
-            git config user.name "CircleCI"
-            
-            # Check if tag already exists
-            if git rev-parse "${VERSION}" >/dev/null 2>&1; then
-              echo "Tag ${VERSION} already exists, skipping tag creation"
+            # Only create tags for main branch builds
+            if [ "${IS_MAIN_BRANCH}" == "true" ]; then
+              echo "Creating tag for version: ${VERSION}"
+              git config user.email "ci@incept5.com"
+              git config user.name "CircleCI"
+              
+              # Check if tag already exists
+              if git rev-parse "${VERSION}" >/dev/null 2>&1; then
+                echo "Tag ${VERSION} already exists, skipping tag creation"
+              else
+                echo "Creating new tag ${VERSION}"
+                git tag -a "${VERSION}" -m "Release version ${VERSION}"
+                git push origin "${VERSION}"
+              fi
             else
-              echo "Creating new tag ${VERSION}"
-              git tag -a "${VERSION}" -m "Release version ${VERSION}"
-              git push origin "${VERSION}"
+              echo "Skipping tag creation for non-main branch build"
             fi
       - run:
           name: Trigger JitPack Build
           command: |
-            VERSION="1.0.${BUILD_NUMBER}"
+            # VERSION is already set in the "Set Version" step
             
             # Debug information
             echo "Maven repository location: $HOME/.m2/repository"
@@ -268,6 +279,3 @@ workflows:
       - publish-to-jitpack:
           requires:
             - build-and-test
-          filters:
-            branches:
-              only: main

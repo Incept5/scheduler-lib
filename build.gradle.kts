@@ -130,7 +130,7 @@ publishing {
 
             // POM information
             pom {
-                name.set("Error Library")
+                name.set("Scheduler Library")
                 description.set("scheduler  library for Quarkus applications")
                 url.set("https://github.com/incept5/scheduler-lib")
 
