@@ -1,0 +1,24 @@
+{
+  "spec": "do not publish snapshots to jitpack, only to local maven repository",
+  "commitMessage": "Update CircleCI config to only publish SNAPSHOT versions to local Maven repository and not to JitPack",
+  "stats": {
+    "inputTokens": 47909,
+    "cacheWriteTokens": 0,
+    "cacheReadTokens": 22506,
+    "outputTokens": 5607,
+    "totalTokens": 0,
+    "cost": 0.170874,
+    "currency": "gbp",
+    "processingMillis": 76280,
+    "git": {
+      "filesChanged": 1,
+      "insertions": 88,
+      "deletions": 81,
+      "linesChanged": 88,
+      "testFilesChanged": 0,
+      "testInsertions": 0,
+      "testDeletions": 0,
+      "testLinesChanged": 0
+    }
+  }
+}

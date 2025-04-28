@@ -97,10 +97,8 @@ jobs:
               echo "Skipping tag creation for non-main branch build"
             fi
       - run:
-          name: Trigger JitPack Build
+          name: Verify Local Maven Repository
           command: |
-            # VERSION is already set in the "Set Version" step
-            
             # Debug information
             echo "Maven repository location: $HOME/.m2/repository"
             echo "Using version: ${VERSION}"
@@ -110,7 +108,7 @@ jobs:
             find $HOME/.m2/repository/com/github/incept5 -type f -name "*.jar" | sort
             
             # Verify that JARs exist locally
-                        if [ ! -f "$HOME/.m2/repository/com/github/incept5/scheduler-db/${VERSION}/scheduler-db-${VERSION}.jar" ]; then
+            if [ ! -f "$HOME/.m2/repository/com/github/incept5/scheduler-db/${VERSION}/scheduler-db-${VERSION}.jar" ]; then
               echo "scheduler: scheduler-db JAR not found locally at expected path"
               echo "Expected: $HOME/.m2/repository/com/github/incept5/scheduler-db/${VERSION}/scheduler-db-${VERSION}.jar"
             
@@ -191,84 +189,93 @@ jobs:
               fi
             fi
             
-            echo "Both artifacts verified locally"
-            
-            # Trigger JitPack build by making a request to the JitPack URL with the version tag
-            echo "Triggering JitPack build for version ${VERSION}"
-            # Trigger the root project build on JitPack
-            curl -s "https://jitpack.io/com/github/incept5/scheduler-lib/${VERSION}/scheduler-lib-${VERSION}.pom" || true
-            
-            echo "JitPack build triggered for version ${VERSION}"
-            echo "Root project will be available at: https://jitpack.io/#incept5/scheduler-lib/${VERSION}"
-            echo "Modules will be available at:"
-            echo "- https://jitpack.io/#incept5/scheduler-lib/scheduler-db/${VERSION}"
-            echo "- https://jitpack.io/#incept5/scheduler-lib/scheduler-core/${VERSION}"
-            echo "- https://jitpack.io/#incept5/scheduler-lib/scheduler-quarkus/${VERSION}"
-            
-            # Wait for JitPack to process the build
-            echo "Waiting for JitPack to process the build..."
-            sleep 180  # Increased wait time to allow JitPack to process
-            
-            # Verify the build status for the root project
-            ROOT_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://jitpack.io/com/github/incept5/scheduler-lib/${VERSION}/scheduler-lib-${VERSION}.pom")
-            if [ "$ROOT_STATUS" -eq 200 ]; then
-              echo "Root project successfully published to JitPack!"
+            echo "All artifacts verified in local Maven repository"
+      
+      # Only trigger JitPack for main branch builds
+      - run:
+          name: Trigger JitPack Build
+          command: |
+            # Only publish to JitPack for main branch builds
+            if [ "${IS_MAIN_BRANCH}" == "true" ]; then
+              echo "Triggering JitPack build for version ${VERSION}"
+              # Trigger the root project build on JitPack
+              curl -s "https://jitpack.io/com/github/incept5/scheduler-lib/${VERSION}/scheduler-lib-${VERSION}.pom" || true
+              
+              echo "JitPack build triggered for version ${VERSION}"
+              echo "Root project will be available at: https://jitpack.io/#incept5/scheduler-lib/${VERSION}"
+              echo "Modules will be available at:"
+              echo "- https://jitpack.io/#incept5/scheduler-lib/scheduler-db/${VERSION}"
+              echo "- https://jitpack.io/#incept5/scheduler-lib/scheduler-core/${VERSION}"
+              echo "- https://jitpack.io/#incept5/scheduler-lib/scheduler-quarkus/${VERSION}"
+              
+              # Wait for JitPack to process the build
+              echo "Waiting for JitPack to process the build..."
+              sleep 180  # Increased wait time to allow JitPack to process
+              
+              # Verify the build status for the root project
+              ROOT_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://jitpack.io/com/github/incept5/scheduler-lib/${VERSION}/scheduler-lib-${VERSION}.pom")
+              if [ "$ROOT_STATUS" -eq 200 ]; then
+                echo "Root project successfully published to JitPack!"
+              else
+                echo "Root project not found on JitPack. Status code: $ROOT_STATUS"
+                echo "Check status at: https://jitpack.io/#incept5/scheduler-lib/${VERSION}"
+              fi
+              
+              # Verify the build status for scheduler-db module
+              CORE_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://jitpack.io/com/github/incept5/scheduler-lib/scheduler-db/${VERSION}/scheduler-core-${VERSION}.jar")
+              if [ "$CORE_STATUS" -eq 200 ]; then
+                echo "scheduler-db artifact successfully published to JitPack!"
+              else
+                echo "scheduler-db artifact not found on JitPack. Status code: $CORE_STATUS"
+                echo "Check status at: https://jitpack.io/#incept5/scheduler-lib/${VERSION}"
+              fi
+              
+              # Verify the build status for scheduler-core module
+              CORE_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://jitpack.io/com/github/incept5/scheduler-lib/scheduler-core/${VERSION}/scheduler-core-${VERSION}.jar")
+              if [ "$CORE_STATUS" -eq 200 ]; then
+                echo "scheduler-core artifact successfully published to JitPack!"
+              else
+                echo "scheduler-core artifact not found on JitPack. Status code: $CORE_STATUS"
+                echo "Check status at: https://jitpack.io/#incept5/scheduler-lib/${VERSION}"
+              fi
+              
+              # Verify the build status for scheduler-quarkus module
+              QUARKUS_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://jitpack.io/com/github/incept5/scheduler-lib/scheduler-quarkus/${VERSION}/scheduler-quarkus-${VERSION}.jar")
+              if [ "$QUARKUS_STATUS" -eq 200 ]; then
+                echo "scheduler-quarkus artifact successfully published to JitPack!"
+              else
+                echo "scheduler-quarkus artifact not found on JitPack. Status code: $QUARKUS_STATUS"
+                echo "Check status at: https://jitpack.io/#incept5/scheduler-lib/${VERSION}"
+              fi
+              
+              # Final verification
+              if [ "$ROOT_STATUS" -eq 200 ] && [ "$CORE_STATUS" -eq 200 ] && [ "$QUARKUS_STATUS" -eq 200 ]; then
+                echo "All artifacts successfully published to JitPack!"
+              else
+                echo "WARNING: One or more artifacts may not be available yet on JitPack."
+                echo "This is normal as JitPack may take some time to process the build."
+                echo ""
+                echo "To use these artifacts in your project:"
+                echo "1. Add the JitPack repository to your build file"
+                echo "   repositories {"
+                echo "     maven { url 'https://jitpack.io' }"
+                echo "   }"
+                echo ""
+                echo "2. Add the dependencies"
+                echo "   dependencies {"
+                echo "     implementation 'com.github.incept5.scheduler-lib:scheduler-db:${VERSION}'"
+                echo "     implementation 'com.github.incept5.scheduler-lib:scheduler-core:${VERSION}'"
+                echo "     implementation 'com.github.incept5.scheduler-lib:scheduler-quarkus:${VERSION}'"
+                echo "   }"
+                echo ""
+                echo "3. Or use the root project (includes all modules)"
+                echo "   dependencies {"
+                echo "     implementation 'com.github.incept5:scheduler-lib:${VERSION}'"
+                echo "   }"
+              fi
             else
-              echo "Root project not found on JitPack. Status code: $ROOT_STATUS"
-              echo "Check status at: https://jitpack.io/#incept5/scheduler-lib/${VERSION}"
-            fi
-            
-             # Verify the build status for scheduler-db module
-            CORE_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://jitpack.io/com/github/incept5/scheduler-lib/scheduler-db/${VERSION}/scheduler-core-${VERSION}.jar")
-            if [ "$CORE_STATUS" -eq 200 ]; then
-              echo "scheduler-db artifact successfully published to JitPack!"
-            else
-              echo "scheduler-db artifact not found on JitPack. Status code: $CORE_STATUS"
-              echo "Check status at: https://jitpack.io/#incept5/scheduler-lib/${VERSION}"
-            fi
-            
-            # Verify the build status for scheduler-core module
-            CORE_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://jitpack.io/com/github/incept5/scheduler-lib/scheduler-core/${VERSION}/scheduler-core-${VERSION}.jar")
-            if [ "$CORE_STATUS" -eq 200 ]; then
-              echo "scheduler-core artifact successfully published to JitPack!"
-            else
-              echo "scheduler-core artifact not found on JitPack. Status code: $CORE_STATUS"
-              echo "Check status at: https://jitpack.io/#incept5/scheduler-lib/${VERSION}"
-            fi
-            
-            # Verify the build status for scheduler-quarkus module
-            QUARKUS_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://jitpack.io/com/github/incept5/scheduler-lib/scheduler-quarkus/${VERSION}/scheduler-quarkus-${VERSION}.jar")
-            if [ "$QUARKUS_STATUS" -eq 200 ]; then
-              echo "scheduler-quarkus artifact successfully published to JitPack!"
-            else
-              echo "scheduler-quarkus artifact not found on JitPack. Status code: $QUARKUS_STATUS"
-              echo "Check status at: https://jitpack.io/#incept5/scheduler-lib/${VERSION}"
-            fi
-            
-            # Final verification
-            if [ "$ROOT_STATUS" -eq 200 ] && [ "$CORE_STATUS" -eq 200 ] && [ "$QUARKUS_STATUS" -eq 200 ]; then
-              echo "All artifacts successfully published to JitPack!"
-            else
-              echo "WARNING: One or more artifacts may not be available yet on JitPack."
-              echo "This is normal as JitPack may take some time to process the build."
-              echo ""
-              echo "To use these artifacts in your project:"
-              echo "1. Add the JitPack repository to your build file"
-              echo "   repositories {"
-              echo "     maven { url 'https://jitpack.io' }"
-              echo "   }"
-              echo ""
-              echo "2. Add the dependencies"
-              echo "   dependencies {"
-              echo "     implementation 'com.github.incept5.scheduler-lib:scheduler-db:${VERSION}'"
-              echo "     implementation 'com.github.incept5.scheduler-lib:scheduler-core:${VERSION}'"
-              echo "     implementation 'com.github.incept5.scheduler-lib:scheduler-quarkus:${VERSION}'"
-              echo "   }"
-              echo ""
-              echo "3. Or use the root project (includes all modules)"
-              echo "   dependencies {"
-              echo "     implementation 'com.github.incept5:scheduler-lib:${VERSION}'"
-              echo "   }"
+              echo "Skipping JitPack publication for non-main branch build"
+              echo "SNAPSHOT version ${VERSION} is only published to local Maven repository"
             fi
 
 workflows:
