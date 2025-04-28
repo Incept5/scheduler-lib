@@ -4,7 +4,7 @@
 [versions]
 
 # Incept5 versions
-incept5-correlation = "1.0.18"
+incept5-correlation = "1.0.20"
 
 # 3pp dependency versions
 db-scheduler = "15.4.0"
