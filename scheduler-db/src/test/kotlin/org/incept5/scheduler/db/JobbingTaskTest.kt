@@ -10,6 +10,7 @@ import org.incept5.scheduler.model.NamedJobbingTask
 import org.incept5.scheduler.model.TaskConclusion
 import org.incept5.scheduler.model.TaskContext
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.kotest.assertions.nondeterministic.continually
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.assertions.nondeterministic.eventuallyConfig
 import io.kotest.core.spec.style.ShouldSpec
@@ -35,12 +36,6 @@ class JobbingTaskTest : ShouldSpec({
         duration = 25.seconds
     }
 
-    val delayThenWait = eventuallyConfig {
-        initialDelay = 3.seconds
-        interval = 1.seconds
-        duration = 3.seconds
-    }
-
     /**
      * Simply tests that a task can be queued several times
      */
@@ -64,7 +59,7 @@ class JobbingTaskTest : ShouldSpec({
         fixture.scheduleTask(task.getName(), "three")
 
         eventually(standardWait) {
-            signal.get() == 3
+            signal.get() shouldBe 3
         }
 
         // queue some more jobs
@@ -72,7 +67,7 @@ class JobbingTaskTest : ShouldSpec({
         fixture.scheduleTask(task.getName(), "five")
 
         eventually(standardWait) {
-            signal.get() == 5
+            signal.get() shouldBe 5
         }
 
         fixture.stop()
@@ -114,7 +109,7 @@ class JobbingTaskTest : ShouldSpec({
         fixture.scheduleTask(task.getName(), "one")
 
         eventually(standardWait) {
-            signal.get() == 3
+            signal.get() shouldBe 3
         }
 
         // wait for jobs to complete
@@ -158,12 +153,12 @@ class JobbingTaskTest : ShouldSpec({
 
         // wait for retries
         eventually(standardWait) {
-            signal.get() == 4
+            signal.get() shouldBe 4
         }
 
         // wait some more and check no more retries are made
-        eventually(delayThenWait) {
-            signal.get() == 4
+        continually(3.seconds) {
+            signal.get() shouldBe 4
         }
 
         fixture.stop()
@@ -224,17 +219,17 @@ class JobbingTaskTest : ShouldSpec({
 
         // wait for retries
         eventually(standardWait) {
-            signal.get() == 3
+            signal.get() shouldBe 3
         }
 
         // and no more retries
-        eventually(delayThenWait) {
-            signal.get() == 3
+        continually(3.seconds) {
+            signal.get() shouldBe 3
         }
 
         // then check on max retry task was run
         eventually(standardWait) {
-            maxRetrySignal.get()
+            maxRetrySignal.get() shouldBe true
         }
 
         fixture.stop()
@@ -281,7 +276,8 @@ class JobbingTaskTest : ShouldSpec({
         fixture.scheduleTask(task.getName(), "one")
 
         eventually(standardWait) {
-            signal.get() == 4 && complete.get()
+            signal.get() shouldBe 4
+            complete.get() shouldBe true
         }
 
         fixture.stop()
@@ -327,13 +323,13 @@ class JobbingTaskTest : ShouldSpec({
         // wait for job to complete
         // no retries on incomplete applied
         eventually(standardWait) {
-            signal.get() == 1
+            signal.get() shouldBe 1
         }
 
         // no more retry attempts will be made
         // allow time for another retry (which shouldn't happen)
-        eventually(delayThenWait) {
-            signal.get() == 1
+        continually(3.seconds) {
+            signal.get() shouldBe 1
         }
 
         fixture.stop()
@@ -379,12 +375,12 @@ class JobbingTaskTest : ShouldSpec({
 
         // wait for job to complete
         eventually(standardWait) {
-            signal.get() == 4
+            signal.get() shouldBe 4
         }
 
         // no more retry attempts will be made
-        eventually(delayThenWait) {
-            signal.get() == 4
+        continually(3.seconds) {
+            signal.get() shouldBe 4
         }
 
         fixture.stop()
@@ -443,12 +439,13 @@ class JobbingTaskTest : ShouldSpec({
 
         // wait for job to complete
         eventually(standardWait) {
-            signal.get() == 7 && complete.get()
+            signal.get() shouldBe 7
+            complete.get() shouldBe true
         }
 
         // no more retry attempts will be made
-        eventually(delayThenWait) {
-            signal.get() == 7
+        continually(3.seconds) {
+            signal.get() shouldBe 7
         }
 
         fixture.stop()
@@ -510,15 +507,15 @@ class JobbingTaskTest : ShouldSpec({
         fixture.scheduleTask(task.getName(), payload)
 
         eventually(standardWait) {
-            signal.get() == 3
+            signal.get() shouldBe 3
         }
 
-        eventually(delayThenWait) {
-            signal.get() == 3
+        continually(3.seconds) {
+            signal.get() shouldBe 3
         }
 
         eventually(standardWait) {
-            maxRetrySignal.get()
+            maxRetrySignal.get() shouldBe true
         }
 
         fixture.stop()

@@ -13,6 +13,7 @@ import io.kotest.assertions.nondeterministic.eventuallyConfig
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.longs.shouldBeLessThan
+import io.kotest.matchers.shouldBe
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalTime
@@ -54,7 +55,7 @@ class ScheduledTaskTest : ShouldSpec({
         ).start()
 
         eventually(standardWait) {
-            signal.get()
+            signal.get() shouldBe true
         }
 
         fixture.stop()
@@ -85,7 +86,7 @@ class ScheduledTaskTest : ShouldSpec({
         ).start()
 
         eventually(standardWait) {
-            signal.get() == 3
+            signal.get() shouldBeGreaterThanOrEqual 3
         }
 
         fixture.stop()
