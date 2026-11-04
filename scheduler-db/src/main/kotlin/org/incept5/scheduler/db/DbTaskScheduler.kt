@@ -193,7 +193,7 @@ open class DbTaskScheduler(
                     // create and configure recurring task
                     val builder = Tasks.recurring(task.getName(), schedule)
 
-                    configureFailureHandler<Void>(namedTaskConfig)
+                    configureRecurringFailureHandler<Void>(namedTaskConfig, schedule)
                         .ifPresent { failureHandler: FailureHandler<Void>? ->
                             builder.onFailure(failureHandler)
                         }
@@ -427,6 +427,36 @@ open class DbTaskScheduler(
     }
 
     /**
+     * Constructs a FailureHandler for a recurring task from the given NamedTaskConfig.
+     * Unlike jobbing tasks, a recurring task is never stopped once its max-retry is
+     * exceeded; instead it is rescheduled to the next time given by its schedule.
+     *
+     * @param namedTaskConfig the configuration from which to create the handler.
+     * @param schedule the recurring task's schedule.
+     * @return the configured FailureHandler.
+     */
+    private fun <T> configureRecurringFailureHandler(namedTaskConfig: NamedTaskConfig, schedule: Schedule): Optional<FailureHandler<T>> {
+        return namedTaskConfig.onFailure().map { retryConfig ->
+            if (retryConfig.maxRetry().isPresent) {
+                // retry up to max-retry, then wait for the next scheduled run
+                RecurringMaxRetriesHandler(
+                    schedule,
+                    retryConfig.maxRetry().asInt,
+                    retryConfig.retryInterval().orElse(RetryConfig.DEFAULT_RETRY_INTERVAL),
+                    if (retryConfig.retryInterval().isPresent) {
+                        retryConfig.retryExponent().orElse(RetryConfig.DEFAULT_RETRY_EXPONENT)
+                    } else {
+                        1.0
+                    }
+                )
+            } else {
+                // no max-retry - unbounded retries, as for jobbing tasks
+                configureFailureHandler<T>(namedTaskConfig).orElse(null)
+            }
+        }
+    }
+
+    /**
      * Calculates the delay before an INCOMPLETE NamedJobbingTask will be repeated.
      * If no repeat configuration is given, or the max-retries has been reached,
      * the return value will be empty.
@@ -483,6 +513,38 @@ open class DbTaskScheduler(
                 }
             } else {
                 failureHandler.onFailure(executionComplete, executionOperations)
+            }
+        }
+    }
+
+    /**
+     * Failure handler for recurring tasks. Failed executions are retried, with an
+     * exponential back-off, up to the max-retry; after which the task is rescheduled
+     * to the next time given by its schedule (rather than being stopped).
+     * <p>
+     * db-scheduler only resets the consecutive failure count on success, so the count
+     * keeps rising across scheduled runs that fail. Each scheduled run (plus its retries)
+     * is therefore treated as a cycle of maxRetries + 1 attempts, so that every
+     * scheduled run gets the same retry budget and back-off.
+     */
+    class RecurringMaxRetriesHandler<T>(
+        private val schedule: Schedule,
+        private val maxRetries: Int,
+        private val retryInterval: Duration,
+        private val retryExponent: Double
+    ) : FailureHandler<T> {
+        override fun onFailure(executionComplete: ExecutionComplete, executionOperations: ExecutionOperations<T>) {
+            val consecutiveFailures = executionComplete.execution.consecutiveFailures
+            val failuresThisRun = consecutiveFailures % (maxRetries + 1)
+            if (failuresThisRun >= maxRetries) {
+                val nextExecution = schedule.getNextExecutionTime(executionComplete)
+                logger.error ("Execution failed for recurring task - giving up retries until the next scheduled run : instance {}, consecutiveFailures {}, nextExecution {}", executionComplete.execution.taskInstance, consecutiveFailures + 1, nextExecution)
+                executionOperations.reschedule(executionComplete, nextExecution)
+            } else {
+                val retryDelay = Math.round(retryInterval.toMillis() * retryExponent.pow(failuresThisRun.toDouble()))
+                val nextTry = executionComplete.timeDone.plusMillis(retryDelay)
+                logger.debug ("Execution failed for recurring task - retrying : instance {}, consecutiveFailures {}, nextTry {}", executionComplete.execution.taskInstance, consecutiveFailures + 1, nextTry)
+                executionOperations.reschedule(executionComplete, nextTry)
             }
         }
     }
