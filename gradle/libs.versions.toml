@@ -13,12 +13,12 @@ jakarta = "11.0.0"
 jackson = "2.18.3"
 kotest = "5.9.1"
 kotlin-logging = "6.0.3"
-quarkus = "3.21.1"
+quarkus = "3.38.1"
 slf4j = "2.0.9"
 
 # plugin versions
-jandex = "1.1.0"
-kotlin = "2.1.20"
+jandex = "2.3.0"
+kotlin = "2.3.10"
 maven-settings = "0.5"
 dependency-analysis = "1.29.0"
 
